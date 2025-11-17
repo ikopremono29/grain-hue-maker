@@ -3,9 +3,10 @@ import { useEffect, useRef } from "react";
 interface GradientPreviewProps {
   color: { r: number; g: number; b: number };
   grainIntensity: number;
+  gradientType: "two-tone" | "solid";
 }
 
-export const GradientPreview = ({ color, grainIntensity }: GradientPreviewProps) => {
+export const GradientPreview = ({ color, grainIntensity, gradientType }: GradientPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -18,13 +19,17 @@ export const GradientPreview = ({ color, grainIntensity }: GradientPreviewProps)
     const width = canvas.width;
     const height = canvas.height;
 
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, `rgb(${color.r}, ${color.g}, ${color.b})`);
-    gradient.addColorStop(1, `rgb(${Math.max(0, color.r - 60)}, ${Math.max(0, color.g - 60)}, ${Math.max(0, color.b - 60)})`);
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    // Create gradient or solid color
+    if (gradientType === "solid") {
+      ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+      ctx.fillRect(0, 0, width, height);
+    } else {
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, `rgb(${color.r}, ${color.g}, ${color.b})`);
+      gradient.addColorStop(1, `rgb(${Math.max(0, color.r - 60)}, ${Math.max(0, color.g - 60)}, ${Math.max(0, color.b - 60)})`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+    }
 
     // Add grain
     if (grainIntensity > 0) {
@@ -40,7 +45,7 @@ export const GradientPreview = ({ color, grainIntensity }: GradientPreviewProps)
 
       ctx.putImageData(imageData, 0, 0);
     }
-  }, [color, grainIntensity]);
+  }, [color, grainIntensity, gradientType]);
 
   return (
     <div className="relative">

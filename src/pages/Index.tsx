@@ -5,10 +5,12 @@ import { DownloadControls } from "@/components/DownloadControls";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Index = () => {
   const [color, setColor] = useState({ r: 147, g: 51, b: 234 });
   const [grainIntensity, setGrainIntensity] = useState(30);
+  const [gradientType, setGradientType] = useState<"two-tone" | "solid">("two-tone");
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -24,7 +26,7 @@ const Index = () => {
           <Card className="p-8">
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Preview</h2>
-              <GradientPreview color={color} grainIntensity={grainIntensity} />
+              <GradientPreview color={color} grainIntensity={grainIntensity} gradientType={gradientType} />
               <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                 <div
                   className="w-10 h-10 rounded border border-border"
@@ -65,20 +67,35 @@ const Index = () => {
               </div>
 
               <div className="pt-4 border-t border-border">
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-sm font-medium">Grain Intensity</Label>
-                    <span className="text-sm text-muted-foreground font-mono">{grainIntensity}</span>
+                <div className="space-y-4 mb-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Gradient Type</Label>
+                    <Select value={gradientType} onValueChange={(value) => setGradientType(value as "two-tone" | "solid")}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="two-tone">Two-Tone Gradient</SelectItem>
+                        <SelectItem value="solid">Solid Color</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Slider
-                    value={[grainIntensity]}
-                    onValueChange={([value]) => setGrainIntensity(value)}
-                    max={100}
-                    step={1}
-                  />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-sm font-medium">Grain Intensity</Label>
+                      <span className="text-sm text-muted-foreground font-mono">{grainIntensity}</span>
+                    </div>
+                    <Slider
+                      value={[grainIntensity]}
+                      onValueChange={([value]) => setGrainIntensity(value)}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
                 </div>
 
-                <DownloadControls color={color} grainIntensity={grainIntensity} />
+                <DownloadControls color={color} grainIntensity={grainIntensity} gradientType={gradientType} />
               </div>
             </div>
           </Card>
