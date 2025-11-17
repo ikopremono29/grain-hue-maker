@@ -8,9 +8,12 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Index = () => {
-  const [color, setColor] = useState({ r: 147, g: 51, b: 234 });
+  const [color1, setColor1] = useState({ r: 147, g: 51, b: 234 });
+  const [color2, setColor2] = useState({ r: 87, g: 0, b: 174 });
   const [grainIntensity, setGrainIntensity] = useState(30);
   const [gradientType, setGradientType] = useState<"two-tone" | "solid">("two-tone");
+  const [gradientStyle, setGradientStyle] = useState<"linear" | "radial">("linear");
+  const [gradientAngle, setGradientAngle] = useState(135);
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -26,15 +29,35 @@ const Index = () => {
           <Card className="p-8">
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Preview</h2>
-              <GradientPreview color={color} grainIntensity={grainIntensity} gradientType={gradientType} />
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                <div
-                  className="w-10 h-10 rounded border border-border"
-                  style={{ backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})` }}
-                />
-                <span className="font-mono text-sm">
-                  RGB({color.r}, {color.g}, {color.b})
-                </span>
+              <GradientPreview 
+                color1={color1} 
+                color2={color2}
+                grainIntensity={grainIntensity} 
+                gradientType={gradientType}
+                gradientStyle={gradientStyle}
+                gradientAngle={gradientAngle}
+              />
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <div
+                    className="w-10 h-10 rounded border border-border"
+                    style={{ backgroundColor: `rgb(${color1.r}, ${color1.g}, ${color1.b})` }}
+                  />
+                  <span className="font-mono text-sm">
+                    Color 1: RGB({color1.r}, {color1.g}, {color1.b})
+                  </span>
+                </div>
+                {gradientType === "two-tone" && (
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    <div
+                      className="w-10 h-10 rounded border border-border"
+                      style={{ backgroundColor: `rgb(${color2.r}, ${color2.g}, ${color2.b})` }}
+                    />
+                    <span className="font-mono text-sm">
+                      Color 2: RGB({color2.r}, {color2.g}, {color2.b})
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -44,25 +67,52 @@ const Index = () => {
             <div className="space-y-6">
               <div>
                 <h2 className="text-xl font-semibold mb-4">Color Controls</h2>
-                <div className="space-y-4">
-                  <ColorSlider
-                    label="Red"
-                    value={color.r}
-                    onChange={(r) => setColor({ ...color, r })}
-                    color="r"
-                  />
-                  <ColorSlider
-                    label="Green"
-                    value={color.g}
-                    onChange={(g) => setColor({ ...color, g })}
-                    color="g"
-                  />
-                  <ColorSlider
-                    label="Blue"
-                    value={color.b}
-                    onChange={(b) => setColor({ ...color, b })}
-                    color="b"
-                  />
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium">Color 1</Label>
+                    <ColorSlider
+                      label="Red"
+                      value={color1.r}
+                      onChange={(r) => setColor1({ ...color1, r })}
+                      color="r"
+                    />
+                    <ColorSlider
+                      label="Green"
+                      value={color1.g}
+                      onChange={(g) => setColor1({ ...color1, g })}
+                      color="g"
+                    />
+                    <ColorSlider
+                      label="Blue"
+                      value={color1.b}
+                      onChange={(b) => setColor1({ ...color1, b })}
+                      color="b"
+                    />
+                  </div>
+
+                  {gradientType === "two-tone" && (
+                    <div className="space-y-4 pt-4 border-t border-border">
+                      <Label className="text-sm font-medium">Color 2</Label>
+                      <ColorSlider
+                        label="Red"
+                        value={color2.r}
+                        onChange={(r) => setColor2({ ...color2, r })}
+                        color="r"
+                      />
+                      <ColorSlider
+                        label="Green"
+                        value={color2.g}
+                        onChange={(g) => setColor2({ ...color2, g })}
+                        color="g"
+                      />
+                      <ColorSlider
+                        label="Blue"
+                        value={color2.b}
+                        onChange={(b) => setColor2({ ...color2, b })}
+                        color="b"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -81,6 +131,38 @@ const Index = () => {
                     </Select>
                   </div>
 
+                  {gradientType === "two-tone" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Gradient Style</Label>
+                        <Select value={gradientStyle} onValueChange={(value) => setGradientStyle(value as "linear" | "radial")}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="linear">Linear</SelectItem>
+                            <SelectItem value="radial">Radial</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {gradientStyle === "linear" && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-sm font-medium">Gradient Angle</Label>
+                            <span className="text-sm text-muted-foreground font-mono">{gradientAngle}°</span>
+                          </div>
+                          <Slider
+                            value={[gradientAngle]}
+                            onValueChange={([value]) => setGradientAngle(value)}
+                            max={360}
+                            step={1}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <Label className="text-sm font-medium">Grain Intensity</Label>
@@ -95,7 +177,14 @@ const Index = () => {
                   </div>
                 </div>
 
-                <DownloadControls color={color} grainIntensity={grainIntensity} gradientType={gradientType} />
+                <DownloadControls 
+                  color1={color1}
+                  color2={color2}
+                  grainIntensity={grainIntensity} 
+                  gradientType={gradientType}
+                  gradientStyle={gradientStyle}
+                  gradientAngle={gradientAngle}
+                />
               </div>
             </div>
           </Card>

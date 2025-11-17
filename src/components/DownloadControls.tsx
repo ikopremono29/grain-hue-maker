@@ -6,15 +6,18 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface DownloadControlsProps {
-  color: { r: number; g: number; b: number };
+  color1: { r: number; g: number; b: number };
+  color2: { r: number; g: number; b: number };
   grainIntensity: number;
   gradientType: "two-tone" | "solid";
+  gradientStyle: "linear" | "radial";
+  gradientAngle: number;
 }
 
 type Format = "png" | "jpg";
 type Size = "512" | "1024" | "2048" | "4096";
 
-export const DownloadControls = ({ color, grainIntensity, gradientType }: DownloadControlsProps) => {
+export const DownloadControls = ({ color1, color2, grainIntensity, gradientType, gradientStyle, gradientAngle }: DownloadControlsProps) => {
   const [format, setFormat] = useState<Format>("png");
   const [size, setSize] = useState<Size>("1024");
 
@@ -29,12 +32,28 @@ export const DownloadControls = ({ color, grainIntensity, gradientType }: Downlo
 
     // Create gradient or solid color
     if (gradientType === "solid") {
-      ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+      ctx.fillStyle = `rgb(${color1.r}, ${color1.g}, ${color1.b})`;
       ctx.fillRect(0, 0, dimension, dimension);
     } else {
-      const gradient = ctx.createLinearGradient(0, 0, dimension, dimension);
-      gradient.addColorStop(0, `rgb(${color.r}, ${color.g}, ${color.b})`);
-      gradient.addColorStop(1, `rgb(${Math.max(0, color.r - 60)}, ${Math.max(0, color.g - 60)}, ${Math.max(0, color.b - 60)})`);
+      let gradient;
+      
+      if (gradientStyle === "radial") {
+        const centerX = dimension / 2;
+        const centerY = dimension / 2;
+        const radius = Math.max(dimension, dimension) / 2;
+        gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+      } else {
+        // Calculate linear gradient coordinates based on angle
+        const angleRad = (gradientAngle * Math.PI) / 180;
+        const x1 = dimension / 2 - (Math.cos(angleRad) * dimension) / 2;
+        const y1 = dimension / 2 - (Math.sin(angleRad) * dimension) / 2;
+        const x2 = dimension / 2 + (Math.cos(angleRad) * dimension) / 2;
+        const y2 = dimension / 2 + (Math.sin(angleRad) * dimension) / 2;
+        gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+      }
+      
+      gradient.addColorStop(0, `rgb(${color1.r}, ${color1.g}, ${color1.b})`);
+      gradient.addColorStop(1, `rgb(${color2.r}, ${color2.g}, ${color2.b})`);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, dimension, dimension);
     }
