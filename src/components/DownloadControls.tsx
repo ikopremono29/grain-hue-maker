@@ -8,12 +8,13 @@ import { toast } from "sonner";
 interface DownloadControlsProps {
   color: { r: number; g: number; b: number };
   grainIntensity: number;
+  gradientType: "two-tone" | "solid";
 }
 
 type Format = "png" | "jpg";
 type Size = "512" | "1024" | "2048" | "4096";
 
-export const DownloadControls = ({ color, grainIntensity }: DownloadControlsProps) => {
+export const DownloadControls = ({ color, grainIntensity, gradientType }: DownloadControlsProps) => {
   const [format, setFormat] = useState<Format>("png");
   const [size, setSize] = useState<Size>("1024");
 
@@ -26,13 +27,17 @@ export const DownloadControls = ({ color, grainIntensity }: DownloadControlsProp
     canvas.width = dimension;
     canvas.height = dimension;
 
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, 0, dimension, dimension);
-    gradient.addColorStop(0, `rgb(${color.r}, ${color.g}, ${color.b})`);
-    gradient.addColorStop(1, `rgb(${Math.max(0, color.r - 60)}, ${Math.max(0, color.g - 60)}, ${Math.max(0, color.b - 60)})`);
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, dimension, dimension);
+    // Create gradient or solid color
+    if (gradientType === "solid") {
+      ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+      ctx.fillRect(0, 0, dimension, dimension);
+    } else {
+      const gradient = ctx.createLinearGradient(0, 0, dimension, dimension);
+      gradient.addColorStop(0, `rgb(${color.r}, ${color.g}, ${color.b})`);
+      gradient.addColorStop(1, `rgb(${Math.max(0, color.r - 60)}, ${Math.max(0, color.g - 60)}, ${Math.max(0, color.b - 60)})`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, dimension, dimension);
+    }
 
     // Add grain
     if (grainIntensity > 0) {
