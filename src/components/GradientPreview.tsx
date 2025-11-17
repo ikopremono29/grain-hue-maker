@@ -1,12 +1,15 @@
 import { useEffect, useRef } from "react";
 
 interface GradientPreviewProps {
-  color: { r: number; g: number; b: number };
+  color1: { r: number; g: number; b: number };
+  color2: { r: number; g: number; b: number };
   grainIntensity: number;
   gradientType: "two-tone" | "solid";
+  gradientStyle: "linear" | "radial";
+  gradientAngle: number;
 }
 
-export const GradientPreview = ({ color, grainIntensity, gradientType }: GradientPreviewProps) => {
+export const GradientPreview = ({ color1, color2, grainIntensity, gradientType, gradientStyle, gradientAngle }: GradientPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -21,12 +24,28 @@ export const GradientPreview = ({ color, grainIntensity, gradientType }: Gradien
 
     // Create gradient or solid color
     if (gradientType === "solid") {
-      ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+      ctx.fillStyle = `rgb(${color1.r}, ${color1.g}, ${color1.b})`;
       ctx.fillRect(0, 0, width, height);
     } else {
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, `rgb(${color.r}, ${color.g}, ${color.b})`);
-      gradient.addColorStop(1, `rgb(${Math.max(0, color.r - 60)}, ${Math.max(0, color.g - 60)}, ${Math.max(0, color.b - 60)})`);
+      let gradient;
+      
+      if (gradientStyle === "radial") {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.max(width, height) / 2;
+        gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+      } else {
+        // Calculate linear gradient coordinates based on angle
+        const angleRad = (gradientAngle * Math.PI) / 180;
+        const x1 = width / 2 - (Math.cos(angleRad) * width) / 2;
+        const y1 = height / 2 - (Math.sin(angleRad) * height) / 2;
+        const x2 = width / 2 + (Math.cos(angleRad) * width) / 2;
+        const y2 = height / 2 + (Math.sin(angleRad) * height) / 2;
+        gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+      }
+      
+      gradient.addColorStop(0, `rgb(${color1.r}, ${color1.g}, ${color1.b})`);
+      gradient.addColorStop(1, `rgb(${color2.r}, ${color2.g}, ${color2.b})`);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
     }
@@ -45,7 +64,7 @@ export const GradientPreview = ({ color, grainIntensity, gradientType }: Gradien
 
       ctx.putImageData(imageData, 0, 0);
     }
-  }, [color, grainIntensity, gradientType]);
+  }, [color1, color2, grainIntensity, gradientType, gradientStyle, gradientAngle]);
 
   return (
     <div className="relative">
